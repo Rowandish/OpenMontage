@@ -1,0 +1,4 @@
+interface:
+  display_name: "History Shorts Microdoc"
+  short_description: "High-retention history Shorts format"
+  default_prompt: "Use $history-shorts-microdoc to create a 45-50 second history Short in the one tiny mistake, massive consequences format."
