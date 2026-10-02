@@ -1,6 +1,6 @@
 ---
 name: history-shorts-microdoc
-description: Use when creating, revising, or preparing upload metadata for a high-retention YouTube Short, Reel, or TikTok for a history channel built around tiny human mistakes causing massive consequences, especially with ElevenLabs voice/music, word-synced captions, HyperFrames, 45-50 second vertical edits, or YouTube publish packs.
+description: Use when creating, revising, or preparing upload metadata for a high-retention YouTube Short, Reel, or TikTok for a history channel built around tiny human mistakes causing massive consequences, especially with ElevenLabs voice/music, word-synced captions, HyperFrames, ~40 second loop-engineered vertical edits, or YouTube publish packs.
 ---
 
 # History Shorts Microdoc
@@ -13,25 +13,57 @@ Create a high-retention micro-documentary, not a lecture. The owned format is:
 
 The video must focus on the exact small lapse, decision, door, delay, missed signal, ignored warning, or institutional failure that triggered consequences wildly larger than the mistake itself.
 
+The signature line `One tiny mistake. Massive consequences.` is the format's brand, but it is **not spoken in the video and not shown on screen**. It lives in the title, description, and pinned comment. The narration ends on a loop bridge instead (see "Loop Engineering") — a spoken payoff or CTA marks the ending and kills replays.
+
+### Format Invariants
+
+The Shorts feed calibrates a channel's seed audience on format consistency. These markers are invariants — never change them between videos: the top context bar style, the gold/hot/cool caption palette, the channel voice, the `Rewind` cue, the consequence-first structure, and the loop-engineered ending.
+
 ## Target Format
 
 - Platform: YouTube Shorts / Reels / TikTok.
-- Duration: 45-50 seconds.
+- Duration: 38-44 seconds, target ~40. Every extra second past the story is a retention risk; the algorithm's push threshold for 30-60s Shorts is roughly 50% average retention.
+- Hook: the first spoken word lands within 0.5s, the first caption group is visible within 0.3s, and the frame at `t=0` is the strongest of the 6 images (see "Hook — The First 2 Seconds").
+- Ending: loop-engineered — final frame visually matches `t=0`, final line bridges into the opening line, no spoken CTA, audio tail ≤0.3s (see "Loop Engineering").
 - Visual structure: 6 approved vertical images, one per major beat.
 - Captions: every spoken word appears on screen.
 - Caption grouping: 1-3 words max, large centered text.
 - Voice: catchy reel tone, not flat documentary narration.
 - Music: ElevenLabs instrumental bed, low under the voice.
+- Sound effects: ElevenLabs SFX layer (riser, impact hit, whooshes, optional ticking) synced to beat changes and punch-ins (see "Sound Effects").
 - Images: no artificial dark overlay, smoke overlay, or vignette layered on top of the shot. Natural scene lighting as generated — including moody, low-key, or night scenes — is fine; do not force every image to read as bright daylight.
 - Opening frame: never black; the first scene must be visible at `t=0`.
 - Top context bar: every final video must include a horizontal line near the top plus compact text that states the event place and date/year.
 
+## Hook — The First 2 Seconds
+
+The viewer decides whether to swipe in roughly 1.3-1.8 seconds; 50-60% of all drop-off happens inside the first 3 seconds. A 5-second hook is too slow — the hook must be fully deployed by ~2 seconds.
+
+- The frame at `t=0` is the single strongest of the 6 images — the consequence at its most extreme, not an establishing shot. It also serves as the de-facto thumbnail in the Shorts grid, so the subject must read at thumbnail size. This is why it is always generated with `FLUX pro` while the rest use `FLUX dev` (see "Autonomous Start Rules").
+- The first spoken sentence is ≤8 words and leads with the most extreme concrete fact: `70,000 soldiers. One forgotten door.`
+- First word audible within 0.5s; first caption group on screen within 0.3s; Ken Burns motion already running at frame zero.
+- The tease follows immediately and opens the curiosity loop: name what it *wasn't*, promise something smaller — `It wasn't the cannons. It was smaller.`
+- No logos, no intro cards, no musical riser before the first word.
+
+## Loop Engineering
+
+Every replay counts as a view, and average retention above 100% — the video loops without the viewer noticing — is the strongest satisfaction signal a Short can send. The loop is designed, not hoped for:
+
+- The final visual is the same consequence image as `t=0`, with its Ken Burns move landing on (or very near) the exact framing of frame zero, so the cut back to the start is invisible.
+- The final spoken line is a **loop bridge**: it semantically completes into the opening line. Example: `...all of it, because of one open door.` → loops into `70,000 soldiers couldn't break these walls.`
+- No spoken CTA. `Subscribe for more` is banned from narration; subscription asks live in the pinned comment and description.
+- The signature `One tiny mistake. Massive consequences.` is also not spoken — it belongs to title, description, and pinned comment.
+- Audio tail after the last word: ≤0.3s. No long music fade-out, no silence pad, no closing SFX — nothing that says "this is the end."
+- QA loop test: play the junction (last second + first second) twice on a phone. If you can feel where the video ends, the loop fails.
+
 ## Autonomous Start Rules
 
-For this channel format, the opening interaction must be fast and mostly autonomous.
+For this channel format, the opening interaction must be fast and fully autonomous.
 
-- At the start, ask only one preference question: whether the user wants `FLUX dev` or `FLUX pro` for image generation.
-- Do not ask for confirmation of concept direction, pipeline, render runtime, authoring mode, voice, music, caption style, scene count, or publish-pack structure at the beginning. Use the defaults in this skill and move.
+- Ask **no** preference questions at the start — including the image model. The image-model policy is fixed:
+  - **The hook image (beat 1, the frame at `t=0`) is always generated with `FLUX pro`.** It is the swipe-stopper and the de-facto thumbnail; it gets the premium model.
+  - **The other 5 images are always generated with `FLUX dev`.** They are supporting beats behind heavy motion and captions; dev quality is sufficient and keeps cost down.
+- Do not ask for confirmation of concept direction, pipeline, render runtime, authoring mode, image model, voice, music, caption style, scene count, or publish-pack structure at the beginning. Use the defaults in this skill and move.
 - Lock `render_runtime = "hyperframes"` and `composition_mode = "atelier"` for every history-shorts-microdoc production. Do not present Remotion or FFmpeg as alternatives for this format, even if they are available.
 - Use HyperFrames for the final composition and publishable render. FFmpeg is allowed only for inspection, extraction, remuxing, loudness normalization, and image utility work after the HyperFrames render exists.
 - If HyperFrames is unavailable or broken, stop and surface that as a blocker. Do not silently switch to Remotion or FFmpeg composition.
@@ -40,16 +72,18 @@ For this channel format, the opening interaction must be fast and mostly autonom
 ## Production Workflow
 
 1. Follow the OpenMontage pipeline and registry rules before generation.
-2. Ask the single initial image-model question (`FLUX dev` or `FLUX pro`), then proceed autonomously with this skill's defaults.
+2. Proceed autonomously with this skill's defaults — no opening questions. Image models are fixed: `FLUX pro` for the hook image (beat 1), `FLUX dev` for the other 5. Record this as the `provider_selection` decision in the decision log.
 3. Use or generate up to 6 vertical images for the full short. **HARD LIMIT: never generate more than 6 images in a single session.** If the story seems to need more, adapt the beat plan, reuse an approved image for a later cut, or use internal motion/emphasis instead of asking for extra images.
 4. Once images exist, freeze them. Do not regenerate or delete images unless the user explicitly asks or a generation failed technically.
-5. Default to a consequence-first hook: show the massive outcome in the first 5 seconds, then rewind into context and reveal the tiny mistake.
-6. Write a 95-110 word script for 45-50 seconds when using the consequence-first flow. Let pauses and punctuation create suspense; do not pad with lecture context.
+5. Default to a consequence-first hook: the massive outcome is on screen at `t=0` and named in the first spoken sentence (≤8 words, fully landed within ~2 seconds), then rewind into context and hold the tiny-mistake reveal until the 60-70% mark.
+6. Write an 80-95 word script for 38-44 seconds when using the consequence-first flow. Let pauses and punctuation create suspense; do not pad with lecture context. The last line must be the loop bridge, not a payoff or CTA.
 7. Generate ElevenLabs TTS at the right duration directly. Do not plan to fix pacing later with FFmpeg `atempo`.
 8. Generate ElevenLabs music to match the target duration.
-9. Build the final composition in HyperFrames atelier, always.
-10. Render, inspect frames, check transition frames, check audio loudness, then normalize/remux only if needed.
-11. Create a YouTube publish pack before final handoff, including the publishable MP4.
+9. Generate the ElevenLabs sound-effects layer (riser, impact hit, whooshes, optional ticking) once narration word timings exist, so hits can be synced to visual events.
+10. Build the final composition in HyperFrames atelier, always.
+11. Render, inspect frames, check transition frames, check the loop junction (last second → first second), check audio loudness, then normalize/remux only if needed.
+12. Create a YouTube publish pack before final handoff, including the publishable MP4.
+13. After publish, run the post-publish analytics check (see "Post-Publish Analytics") and record findings for the next production.
 
 ## Blocker And Non-Response Handling
 
@@ -61,7 +95,7 @@ If a paid-generation blocker occurs mid-production (exhausted provider credit, r
 4. Flag every known asset issue caused by the blocker clearly and specifically — in the decision log, `final_review.json`, and the YouTube `upload-checklist.md` — so the gap is visible before anyone publishes, not discovered after.
 5. Tell the user exactly how to unblock it later (e.g. "top up billing, then ask me to regenerate scene-4") so resuming is a one-line request, not a re-investigation.
 
-This only applies to in-flight blocker recovery. At the beginning of a normal history-shorts-microdoc run, the only required user choice is `FLUX dev` versus `FLUX pro`; all other defaults are locked by this skill.
+This only applies to in-flight blocker recovery. At the beginning of a normal history-shorts-microdoc run there are no required user choices: every default — including the FLUX pro (hook) / FLUX dev (other 5) image-model split — is locked by this skill.
 
 ## ElevenLabs Voice
 
@@ -73,7 +107,7 @@ Use ElevenLabs for voice unless the user explicitly chooses another provider.
 - Stability starting point: around `0.30-0.40`.
 - Similarity boost starting point: around `0.70-0.80`.
 - Style starting point: around `0.60-0.75`.
-- Speed: adjust in the ElevenLabs request, usually `1.05-1.12`, so the generated narration lands in 45-50 seconds without post-speeding.
+- Speed: adjust in the ElevenLabs request, usually `1.05-1.12`, so the generated narration lands in 38-44 seconds without post-speeding.
 
 If the narration is too long, shorten the script and regenerate TTS. Avoid using FFmpeg to speed up narration unless the user explicitly approves a technical rescue.
 
@@ -107,13 +141,13 @@ Use ElevenLabs music generation for this format when available.
 Prompt pattern:
 
 ```text
-Instrumental high-retention YouTube Shorts history reel, modern cinematic tension, dark pulse, punchy low drums, subtle ticking percussion, short risers, no vocals, no singing, no spoken words, no lead melody competing with narration, for voiceover ducking, [duration] seconds.
+Instrumental high-retention YouTube Shorts history reel, modern cinematic tension, dark pulse, punchy low drums, subtle ticking percussion, short risers, no vocals, no singing, no spoken words, no lead melody competing with narration, for voiceover ducking, no final cadence or outro, loop-friendly ending, [duration] seconds.
 ```
 
 Mixing rules:
 
 - Place music under narration, usually `data-volume="0.12"` to `0.18`.
-- Fade music out over the last 1-2 seconds.
+- Do not fade music out over a long tail — a 1-2 second fade tells the viewer the video is ending and kills the loop. End the bed at level, or with a fade no longer than ~0.3s, so the junction back to `t=0` does not sound like an ending.
 - After final render, check loudness. Shorts should not be quiet.
 - If integrated loudness is below about `-18 LUFS`, normalize final audio to approximately `-16 LUFS`, true peak around `-1.5 dBTP`, while preserving video.
 
@@ -134,6 +168,23 @@ ffmpeg -i final.mp4 \
   -c:a aac -b:a 192k -ar 48000 \
   final_normalized.mp4
 ```
+
+## Sound Effects
+
+Use ElevenLabs sound-effects generation as a third audio layer. Voice carries the story, music carries tension, SFX carries pacing — synced SFX hits are what make a 6-image still edit feel fast-cut without extra images.
+
+Standard kit per video:
+
+- One riser (`1-1.5s`) building into the tiny-mistake reveal.
+- One deep impact hit landing exactly on the reveal.
+- A short whoosh on each scene crossfade and on the `Rewind` pattern interrupt.
+- Optional low ticking loop under the tension beats (beats 3-5).
+
+Mixing rules:
+
+- SFX sit above the music bed but never over the voice: usually `data-volume="0.25"` to `0.35`.
+- Sync every hit to its visual event (punch-in, color pop, scene change) within `±0.05s` — an off-sync hit is worse than no hit.
+- No SFX in the last `0.5s` of the video: nothing may signal the ending at the loop junction.
 
 ## Caption Style
 
@@ -235,7 +286,7 @@ Pattern:
 }
 
 .cg-norm { fill: #FFFFFF; }
-.cg-high { fill: #FFD700; }  /* tiny-mistake, payoff, REWIND */
+.cg-high { fill: #FFD700; }  /* tiny-mistake, key reveal words, REWIND */
 .cg-hot  { fill: #FF6048; }  /* danger, death, consequence */
 .cg-cool { fill: #B8D7FF; }  /* system, process, order */
 ```
@@ -300,7 +351,7 @@ Use color as a retention tool, not decoration.
 - Highlight only 1-3 important words per beat, or fewer when the beat is already visually busy.
 - Use a stable semantic palette:
   - hot red/orange for danger, death, fire, attack, impact, or irreversible consequence.
-  - warm gold for the tiny mistake, signature format words, payoff words, and the `Rewind` cue.
+  - warm gold for the tiny mistake, key reveal words, and the `Rewind` cue.
   - cool blue/steel for procedural/system words such as route, driver, order, gate, signal, lock, or briefing.
 - Preserve the same black SVG stroke on all colors so colored words remain readable over bright images.
 - Avoid random color changes, rainbow captions, gradients inside text, and coloring every word in a group.
@@ -356,18 +407,19 @@ Required:
 - Compact uppercase metadata text above or aligned with the rule.
 - The metadata must explicitly state the event's place and date/year. Use the most useful compact form, e.g. `CONSTANTINOPLE · 1453`, `S-80 ISAAC PERAL` / `2013 · SPAIN`, `CITIGROUP · USA` / `2020`, or `GERMANY · 1917`.
 - If both the specific place and larger country/region matter, include both when space allows: `BALAKLAVA · CRIMEA` / `1854`.
-- The top bar must be visible from `t=0` and remain visible for the full video unless a deliberate scene transition briefly animates it in during the first second. It must never disappear for the CTA.
+- The top bar must be visible from `t=0` and remain visible through the very last frame. The loop junction needs it in the same position at the final frame as at `t=0`; a bar that fades near the end both signals the ending and breaks the loop.
 - The top bar must sit above image scenes, grain, and transitions, but below or away from the central caption area so it never collides with word captions.
 - Keep it small and informational, not a title card. Do not duplicate the main title or final slogan.
 
 Preferred HyperFrames structure:
 
 ```html
-<div id="tag-bar" class="tag-bar clip" data-layout-allow-occlusion data-start="0" data-duration="49.6" data-track-index="13">
+<!-- data-duration = full video duration (e.g. 40.8 for a ~41s short) so the bar reaches the loop junction -->
+<div id="tag-bar" class="tag-bar clip" data-layout-allow-occlusion data-start="0" data-duration="40.8" data-track-index="13">
   <span id="meta-left" data-layout-allow-overlap>CONSTANTINOPLE</span>
   <span id="meta-right" data-layout-allow-overlap>1453</span>
 </div>
-<div id="rule-line" class="rule-line clip" data-start="0" data-duration="49.6" data-track-index="14"></div>
+<div id="rule-line" class="rule-line clip" data-start="0" data-duration="40.8" data-track-index="14"></div>
 ```
 
 ```css
@@ -426,11 +478,9 @@ tl.fromTo("#tag-bar span", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration:
 
 Record the chosen place/date string in the scene plan or edit decisions so compose has a fixed value, not an ad-hoc guess during rendering.
 
-All on-screen words should come from the narration, including the final `One tiny mistake. Massive consequences.` and `Subscribe for more`.
+All on-screen words must come from the narration. Do not add unspoken title cards, persistent footers, format lines, slogans, or lower-third tags.
 
-The final spoken CTA must always place `One tiny mistake. Massive consequences.` immediately before `Subscribe for more`. Do not put a slash between `mistake` and `Massive`; use punctuation or a line/spacing break instead.
-
-Do not add a second persistent footer, format line, slogan, or bottom tag repeating `One tiny mistake. Massive consequences.` while the same words are already being shown by word-synced captions. The payoff line should appear once as normal timed captions, not again as extra lower-third text.
+The signature line `One tiny mistake. Massive consequences.` and any subscribe ask are **not spoken and not shown on screen**. They live in the publish pack only (title, description, pinned comment). The last spoken words are the loop-bridge line, and nothing on screen may signal the ending (see "Loop Engineering").
 
 ## Still-Image Motion And Transitions
 
@@ -438,10 +488,16 @@ For still-led Shorts, approved images are not enough. The edit must feel alive.
 
 Timing rules:
 
-- Avoid highly uneven image holds. In a 45-50 second short with 6 images, most visual beats should last roughly 6-10 seconds.
-- Do not leave a single approved still on screen for 15-20 seconds unless it has a strong internal animation treatment and a clear narrative reason.
-- Do not make any image hold so briefly that the viewer cannot read the beat; usually avoid still-image holds under about 5 seconds.
+- Avoid highly uneven image holds. In a ~40 second short with 6 images, most visual beats should last roughly 5-8 seconds. The cold-open beat is the deliberate exception: it may run ~2.5 seconds because its image returns at the end for the loop.
+- Do not leave a single approved still on screen for more than about 10 seconds under any treatment.
+- Do not make any other image hold so briefly that the viewer cannot read the beat; outside the cold open, usually avoid holds under about 4 seconds.
 - Align scene changes to narration beat boundaries, but keep the visual cadence balanced. If the word timings create one very long beat, split the motion or add an internal emphasis animation rather than leaving the image static.
+
+Visual event rule (retention-critical):
+
+- **Something perceptible must change at least every 3 seconds.** A frame that stays visually identical for more than ~4 seconds triggers the swipe. Qualifying events: a scene change, a Ken Burns punch-in (a quick `4-6%` scale step over `0.25-0.35s` synced to a key word and an SFX hit), a pan direction change, or a color-pop caption word.
+- Punch-ins are the main tool for stretching a 6-image edit into fast-cut pacing: land them on the beat's most important word, paired with the SFX layer.
+- The `Rewind` cue is a mandatory mid-video pattern interrupt: pair the spoken word with a fast reverse-zoom (or a 2-3 frame micro-glitch) plus a whoosh. It is the retention reset between the hook and the context section.
 
 Transition rules:
 
@@ -459,44 +515,48 @@ Ken Burns rules:
 
 ## Six-Image Beat Map
 
-Use 6 approved images for a 45-50 second short. Default to a consequence-first flow. If the best opening and ending both need the same consequence image, reuse that approved image as a seventh visual cut while keeping 6 unique images.
+Use 6 approved images for a 38-44 second short. Default to a consequence-first flow. The opening consequence image **must** return as the final cut (a seventh visual cut reusing one of the 6 unique images) — this is what makes the loop junction invisible.
 
 | Beat | Time | Purpose |
 |---|---:|---|
-| 1 | 0-5s | Massive consequence first; make the viewer ask how this happened |
-| 2 | 5-12s | Rewind to context; the system was still holding |
-| 3 | 12-17s | Obvious large pressure; show what everyone expects to matter |
-| 4 | 17-22s | System resilience; defenders/operators keep patching the gaps |
-| 5 | 22-31s | Tiny mistake revealed with caveat if disputed |
-| 6 | 31-37s | Consequence enters motion |
-| 7 | 37-50s | Return to consequence image for interpretation, spoken payoff captions, and CTA |
+| 1 | 0-2.5s | Cold open shock: strongest consequence frame + ≤8-word hook line |
+| 2 | 2.5-7s | Tease the smaller cause ("it wasn't X — it was smaller"), then the `Rewind` pattern interrupt |
+| 3 | 7-13s | Context: the system was still holding |
+| 4 | 13-19s | Obvious large pressure; show what everyone expects to matter |
+| 5 | 19-25s | System resilience + re-hook negations ("Not the walls. Not the fleet.") |
+| 6 | 25-33s | Tiny mistake revealed at the 60-70% mark; disputed-history caveat after the impact |
+| 7 | 33-41s | Consequence in motion → return to the opening image, Ken Burns landing on the `t=0` framing; loop-bridge line |
 
-Adjust timings to actual ElevenLabs word timestamps, not the other way around, but preserve a balanced visual cadence. Treat the table as a rhythm target, not a permission to create one very short hold and one very long hold.
+The reveal must never land before ~60% of the runtime — everything earlier is curiosity build. Adjust timings to actual ElevenLabs word timestamps, not the other way around, but preserve a balanced visual cadence. Treat the table as a rhythm target, not a permission to create one very short hold and one very long hold.
 
 ## Script Pattern
 
-Use short sentences, with the fact caveat built in when needed. Default pattern:
+Use short sentences. Target 80-95 words for 38-44 seconds. Default pattern:
 
 ```text
-[Huge consequence] did not happen because of [obvious threat].
-It may have happened through one tiny [thing].
+[Huge consequence, ≤8 words, most extreme concrete fact first].
+It wasn't [obvious threat]. It was something much smaller.
 Rewind.
 For [time], [place/system] survived [obvious pressure].
-[Threat] hit/cracked/shook.
-But the defenders/operators/institution kept patching the gaps.
-The system was still standing.
-Then, according to one account, someone missed [specific tiny thing].
+[Threat] hit/cracked/shook. The [system] held.
+The defenders/operators kept patching the gaps.
 Not the main [thing]. Not a grand [thing].
+Someone missed [specific tiny thing].
 A small [thing] left [wrong state].
 [Opposing force/problem] slipped through.
 Panic/failure moved faster than orders.
-It was not the only reason [event] happened.
-But it became the moment history remembered.
-One tiny mistake. Massive consequences.
-Subscribe for more.
+At least, that's what one account says.
+Would you have caught it?
+All of it — because of one [tiny thing].
 ```
 
-Do not overclaim disputed history. Say `according to one account` or equivalent when the tiny mistake is debated.
+Structural rules:
+
+- The reveal (`Someone missed...`) lands at 60-70% of the runtime. Everything before it builds the open loop: the early tease (`It was something much smaller.`) promises the answer, the negations (`Not the main... Not a grand...`) re-hook right before it.
+- The disputed-history caveat comes **after** the reveal's impact, never before. `Then, according to one account, someone missed...` deflates the biggest moment of the video; reveal first, then `At least, that's what one account says.` Keep the caveat in the description too. Do not overclaim disputed history.
+- The comment-trigger question (`Would you have caught it?` / `Would you have noticed?`) is optional but recommended: comments outweigh subscriptions in the Shorts feed.
+- The final line is the **loop bridge** (see "Loop Engineering"): it must read as the setup of the opening line, not as an ending.
+- `One tiny mistake. Massive consequences.` and `Subscribe for more` are never in the narration.
 
 ## YouTube Publish Pack
 
@@ -534,8 +594,12 @@ Include in `metadata.json`:
 
 Metadata rules:
 
-- Keep titles under YouTube's 100-character title limit.
-- Use the first three hashtags deliberately; prefer `#Shorts`, `#History`, and the main topic hashtag.
+- Keep titles under YouTube's 100-character limit **and put the curiosity gap in the first ~40 characters** — mobile truncates early. Working formulas: `One [tiny thing] ended [huge thing]`, `The $[X] billion mistake nobody noticed`, `[Huge number] couldn't do it. One [tiny thing] did.`
+- The title must never resolve the mystery: do not name the specific tiny mistake in the title or thumbnail text.
+- Use 3-5 relevant hashtags only. `#Shorts` is no longer needed (YouTube classifies Shorts by aspect ratio and duration); prefer `#History`, the event, and the era or place, e.g. `#History #Constantinople #ByzantineEmpire`. Never exceed 15 hashtags — YouTube then ignores all of them.
+- The first line of the description is the strongest topical signal for YouTube's NLP: event keywords plus the curiosity gap. Push credits and disclosure to the bottom of the description.
+- Include the signature `One tiny mistake. Massive consequences.` in the description and/or pinned comment — it brands the format without costing runtime.
+- The pinned comment must be a debate question (`Would you have noticed the open gate? Be honest.`) or a legitimate controversy prompt (`Historians still argue about this — which account do you believe?`), never a generic thanks. Comments outweigh subscriptions in the Shorts feed. Put the subscribe ask here, not in the video.
 - Keep factual caveats from the script in the description, e.g. `according to one account`.
 - Do not overclaim disputed historical details in title or description.
 - Set `altered_or_synthetic_content` to `true` when the video uses realistic AI reconstruction, synthetic narration, or AI-generated music.
@@ -547,12 +611,15 @@ Metadata rules:
 Upload checklist must include:
 
 - final phone check after private or unlisted upload
-- first-frame check: not black
+- first-frame check: not black, and strong enough to work as the grid thumbnail
+- loop check on phone: let the Short replay once; the junction must be invisible
 - T-heavy caption check
 - audio loudness check on phone speakers
 - AI/tool disclosure in the description: AI-generated reconstruction, FLUX, ElevenLabs, and OpenMontage link
 - publish-pack MP4 exists in `publish/youtube/` with a descriptive title-based filename, not `final.mp4`
-- pinned comment after publish
+- pinned comment posted **and pinned within minutes of publishing**, phrased as a question
+- publish at the channel's regular time slot — consistent cadence improves cold seeding
+- schedule the 48-72h analytics check (see "Post-Publish Analytics")
 
 ## Render And QA Checklist
 
@@ -560,8 +627,13 @@ Before final delivery:
 
 - HyperFrames lint: zero errors and zero warnings.
 - HyperFrames validate: no console errors.
-- HyperFrames inspect: include `0`, the hook, tiny-mistake beat, long-word captions, consequence beat, and CTA.
+- HyperFrames inspect: include `0`, the hook, tiny-mistake beat, long-word captions, consequence beat, and the loop junction (last second).
 - Snapshot `0.00s` and confirm the first exported frame is not black.
+- Swipe test: review only the first 2 seconds at phone size — strongest image already on screen, hook words visible, Ken Burns motion already running. If those 2 seconds would not stop a thumb, fix the hook before anything else.
+- Visual-event scan: confirm no interval longer than 3 seconds without a perceptible visual change (scene change, punch-in, pan direction change, or color-pop word).
+- Loop test: play the last second and the first second back to back, twice. The junction must be invisible — matching framing, no fade-out, no audio tail, top bar unmoved.
+- Dead air: narration gaps stay tight throughout, and the audio tail after the last word is ≤0.3s.
+- SFX sync: every riser/impact/whoosh lands within ±0.05s of its visual event; no SFX inside the last 0.5s.
 - Snapshot `0.00s` and confirm the top context bar is visible, near the top, horizontal, and states place plus date/year.
 - Snapshot at least one hot, gold, and cool emphasized caption. Confirm all colors read clearly over the image and still have a clean outline.
 - Snapshot or contact-sheet every image transition: just before, during, and just after the boundary. Confirm there are no white/black flashes and captions stay above images during crossfades.
@@ -577,6 +649,18 @@ Before final delivery:
 - Caption count: all spoken words represented, max 3 words per group.
 - If local transcription is unavailable, explicitly record that ElevenLabs native timestamps were used for word-sync verification.
 
+## Post-Publish Analytics
+
+The pipeline does not end at upload. Check YouTube Studio 48-72 hours after publishing and use the numbers to steer the next video:
+
+- **Viewed vs Swiped Away**: low → the first 2 seconds failed. Fix the hook image and the first spoken line, not the middle of the video.
+- **Retention at the 3-second mark and average retention**: target above 65%; viral Shorts average around 76%. A mid-video cliff means missing re-hooks or a reveal placed too early.
+- **Average percentage viewed above 100%**: the loop works — identify what the junction did and protect it as an invariant.
+- **Engaged views vs views**: a large gap means scroll-bys — again a hook problem, not a content problem.
+- **Comments**: weighted heavier than subscriptions in the Shorts feed. If low, sharpen the pinned question and the spoken comment trigger.
+
+Record findings in `publish/youtube/post-publish-notes.md` (metric snapshot + one hypothesis + one change for the next video) so each production starts from data instead of intuition.
+
 ## Common Mistakes
 
 | Mistake | Fix |
@@ -584,21 +668,29 @@ Before final delivery:
 | TTS too long, then FFmpeg speed-up | Revise script or set ElevenLabs speed before generation |
 | Captions miss spoken words | Use ElevenLabs `with-timestamps` and generate groups from every word |
 | Text looks like subtitles | Use large centered 1-3 word groups |
-| Captions feel visually flat | Keep most words off-white, but color key danger/consequence words hot, tiny-mistake/payoff words gold, and system/process words cool |
+| Captions feel visually flat | Keep most words off-white, but color key danger/consequence words hot, tiny-mistake/reveal words gold, and system/process words cool |
 | Image has an artificial dark overlay/vignette baked into the prompt or CSS | Remove the overlay/vignette; a naturally moody or low-key generated image does not need brightness correction |
 | A render comes out genuinely underexposed or muddy, not stylistically moody | Correct only that case with a light filter such as `brightness(1.08-1.12) saturate(1.03-1.05)`; do not apply this as a default house style to every image |
 | Text has ugly duplicate shadow | Set `text-shadow: none`; use clean stroke |
 | T letters lose vertical outline | Do not use CSS `-webkit-text-stroke` for final captions; use inline SVG text with stroke/fill and visible overflow |
 | Short words spread too far apart | Use dynamic SVG widths for every word, not a fixed wide viewBox; reduce row gap and never group across sentence-ending punctuation |
 | Words touch after compacting short-word spacing | Increase SVG box padding/width, not only the flex gap; check `MORE THAN THREE`, `CAME FROM AN`, and `ON IT` as regression frames |
-| Final payoff appears twice on screen | Remove persistent footer/format-line/lower-third duplicates; `One tiny mistake. Massive consequences.` should appear only once as timed word-synced captions |
+| Signature line or `Subscribe for more` spoken or shown on screen | Neither belongs in the narration or on screen: they live in title/description/pinned comment only. The last spoken line is the loop bridge |
 | Missing top context bar | Add a top horizontal rule plus compact place/date metadata visible from `t=0`, e.g. `CONSTANTINOPLE · 1453` or left/right labels such as `CITIGROUP · USA` and `2020` |
 | Top context bar lacks place or date | Revise the metadata text so it includes both orientation facts: where the event happened and when it happened |
 | Top context bar competes with captions | Keep it small at the top (`top` around 58px, rule around 114px), with central captions vertically centered and never overlapping it |
 | First frame is black | Make the first scene visible in CSS and set it visible at timeline `0`; do not fade in from opacity 0 at frame zero |
-| Chronological opening feels slow | Start with the massive consequence in the first 5 seconds, then use `Rewind` to earn the context |
+| Hook takes 5 seconds to land | The swipe decision happens in ~1.5-2s: strongest image at `t=0`, ≤8-word shock line, first caption within 0.3s, then `Rewind` to earn the context |
 | Image transitions flash | Replace hard cuts with short crossfades and review before/during/after frames at every boundary |
-| Some images stay up forever | Rebalance scene timings so most stills hold about 6-10 seconds; split long beats with motion or emphasis |
+| Some images stay up forever | Rebalance scene timings so most stills hold about 5-8 seconds; split long beats with motion or emphasis |
+| Static hold with no visual event for >4 seconds | Add a punch-in, pan direction change, or color-pop word — something perceptible at least every 3 seconds |
+| Video signals its own ending (long music fade, spoken CTA, silence pad) | Loops die. End on the loop bridge with ≤0.3s audio tail and the final frame matching `t=0` |
+| Tiny mistake revealed too early | Hold the reveal to 60-70% of runtime; re-hook with negations (`Not the walls. Not the fleet.`) before it |
+| Caveat placed before the reveal deflates it | Reveal first, then `At least, that's what one account says.` — never `according to one account, someone missed...` |
+| No SFX layer | Add riser + impact + whooshes synced to visual events within ±0.05s; volume 0.25-0.35, never over voice, none in the last 0.5s |
+| Pinned comment is a generic thanks | Make it a debate question, posted and pinned within minutes; comments outweigh subscriptions in the Shorts feed |
+| Hashtag spam or `#Shorts` reflex | 3-5 relevant hashtags; more than 15 disables all of them; `#Shorts` is no longer needed for classification |
+| Pipeline stops at upload | Run the 48-72h analytics check (swipe ratio, 3s retention, loop %, comments) and record one change for the next video |
 | Ken Burns feels static | Increase scale delta and pan distance enough to read on a phone, e.g. end scale around 1.18-1.24 with varied x/y pan |
 | Missing upload metadata | Create `publish/youtube/` with the descriptive upload MP4, metadata JSON, upload fields, description, tags, pinned comment, and checklist before final handoff |
 | Publish video is named `final.mp4` | Copy/rename the upload-ready file to a title-based name such as `<slug>-youtube-short.mp4` inside `publish/youtube/` and point metadata to that path |
@@ -607,6 +699,7 @@ Before final delivery:
 | Audio feels weak | Check loudness and normalize to Short-ready level |
 | Captions spell out numbers/dates as words ("NINETEEN SEVENTY-SIX", "THREE HUNDRED BILLION") | Convert to digits for the caption only (`1976`, `$300 BILLION`); merge the underlying spoken-word run into one timed caption token. Audio keeps the natural spoken form. See "Number And Date Display". |
 | Generating more than 6 images without asking | Stop at 6. Ask the user before generating any additional images. |
+| Asking the user to pick an image model at the start, or generating the hook image with `FLUX dev` | The split is fixed policy: `FLUX pro` for the beat-1 hook image (swipe-stopper + thumbnail), `FLUX dev` for the other 5. No opening question. |
 | Regenerating approved images | Freeze approved images and build with them |
 | Blocker check-in gets no response (e.g. provider out of credit) | Do not stall and do not regenerate/spend more/swap providers on silence. Finish the pipeline with what's already generated and paid for; flag the specific issue in decision log, `final_review.json`, and `upload-checklist.md`. See "Blocker And Non-Response Handling". |
 | SVG text stacks vertically ("A" above "M") | SVG element has no explicit `width` — browser defaults to 300px, scaling a narrow viewBox by 3-4× and causing word-level flex wrapping. Fix: one SVG per display line with explicit `width="960" height="{h}"` attributes always set. |

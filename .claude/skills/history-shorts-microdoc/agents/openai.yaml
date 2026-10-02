@@ -1,4 +1,4 @@
 interface:
   display_name: "History Shorts Microdoc"
   short_description: "High-retention history Shorts format"
-  default_prompt: "Use $history-shorts-microdoc to create a 45-50 second history Short in the one tiny mistake, massive consequences format. Ask only whether to use FLUX dev or FLUX pro at the start, then build with HyperFrames."
+  default_prompt: "Use $history-shorts-microdoc to create a ~40 second loop-engineered history Short in the one tiny mistake, massive consequences format. No opening questions: FLUX pro for the hook image, FLUX dev for the rest, then build with HyperFrames."
