@@ -43,7 +43,9 @@ Author in this order. Each step routes you to existing knowledge — do not skip
 
 ### 1. Commit to an art direction *for this subject* — the divergence engine
 Before writing any component, decide a visual language that fits **this** topic and no other.
-Use the **`visual-style`** Layer 3 skill (CREATE mode) to lock: palette, type personality,
+Read **`skills/meta/taste-direction.md`** first and write the `taste_profile`: the design read,
+`visual_variance`, `motion_intensity`, `information_density`, reference strategy, and
+anti-patterns. Then use the **`visual-style`** Layer 3 skill (CREATE mode) to lock: palette, type personality,
 motion character, layout system, and **one signature device** unique to this piece. Difference
 between videos is guaranteed here — not by withholding components, but by forcing a fresh
 direction each time. Write it down (a short `art-direction.md` in the project) and build to it.
@@ -207,10 +209,11 @@ registry (`src/components`, `src/Explainer`, etc.), and warns if `art_direction`
 - Verify before render: `npx hyperframes lint . && npx hyperframes validate . && npx hyperframes snapshot . --at <times>`.
   Snapshot is HF's native visual-spotcheck (contact-sheet of PNG frames at chosen
   timestamps) — use it the same way an atelier `final_review.visual_spotcheck` would.
-- **Render**: `npx hyperframes render . --output renders/<name>.mp4`.
-  > Known gap (F13): `hyperframes_compose.render` currently requires `edit_decisions.cuts[]`
-  > from the templated path. For hand-authored HF compositions it errors; call `npx` directly
-  > until the tool grows a bespoke branch.
+- **Render**: call `video_compose` with `render_runtime: "hyperframes"`,
+  `composition_mode: "atelier"`, and the authored `workspace_path`. It routes to
+  `hyperframes_compose.render_existing`, which preserves `index.html` and runs
+  the unified check gate, strict render, and post-render review. Call `npx
+  hyperframes render` directly only while debugging the runtime outside a pipeline.
 
 ## Guardrails so this doesn't backfire
 
